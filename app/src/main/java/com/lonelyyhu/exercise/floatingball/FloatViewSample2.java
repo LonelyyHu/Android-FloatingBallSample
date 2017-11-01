@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
 
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 /**
@@ -32,8 +33,6 @@ public class FloatViewSample2 implements View.OnTouchListener {
     private FadeOutRunnable mFadeOutRunnable = new FadeOutRunnable();
     private boolean hasTouchFloatBall = false;
 
-
-    private static final int TOP_STATUS_BAR_HEIGHT = 25;
     private static final int MAX_ELEVATION = 64;
     private Params params;
 
@@ -45,6 +44,7 @@ public class FloatViewSample2 implements View.OnTouchListener {
     private float downRelativeY;
     private int screenWidth;
     private int screenHeight;
+    private int statusBarHeight;
 
     public FloatViewSample2(Params params) {
         this.params = params;
@@ -79,6 +79,23 @@ public class FloatViewSample2 implements View.OnTouchListener {
 //            fadeOutFloatBall();
             isAdded = true;
         }
+
+        isHiddenWhenExit = false;
+    }
+
+    public void hide() {
+        setVisibility(INVISIBLE);
+        isHiddenWhenExit = true;
+    }
+
+    public void destory() {
+        if (isAdded && mWindowManager != null) {
+            mWindowManager.removeView(ball);
+        }
+//        removeCallbacks(mFadeOutRunnable);
+//        stopClipRunner();
+//        stopScrollRunner();
+        isAdded = false;
     }
 
     private void fadeOutFloatBall() {
@@ -121,9 +138,21 @@ public class FloatViewSample2 implements View.OnTouchListener {
 
         ball.setOnTouchListener(this);
 
+        if (params.onClickListener != null) {
+
+            Log.wtf("FloatViewSample2", "init => setOnClickListener");
+
+            ball.setOnClickListener(params.onClickListener);
+        }
+
+
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         screenWidth = dm.widthPixels;
         screenHeight = dm.heightPixels;
+
+        statusBarHeight = getTopStatusBarHeight();
+        maxMarginTop = screenHeight - params.height - statusBarHeight;
+        maxMarginLeft = screenWidth - params.width;
 
     }
 
@@ -131,7 +160,7 @@ public class FloatViewSample2 implements View.OnTouchListener {
     public boolean onTouch(View v, MotionEvent event) {
 
         Log.wtf("FloatView2", "onTouch => RawX: " + event.getRawX());
-        Log.wtf("FloatView2", "onTouch => RawY: " + event.getRawX());
+        Log.wtf("FloatView2", "onTouch => RawY: " + event.getRawY());
         Log.wtf("FloatView2", "onTouch => X: " + event.getX());
         Log.wtf("FloatView2", "onTouch => Y: " + event.getY());
 
@@ -151,19 +180,29 @@ public class FloatViewSample2 implements View.OnTouchListener {
                     mLayoutParams.x = 0;
                 }
 
-                mLayoutParams.y = (int)(touchY-downRelativeY);
+                mLayoutParams.y = (int)(touchY - downRelativeY - statusBarHeight);
                 if (mLayoutParams.y < 0) {
                     mLayoutParams.y = 0;
+                } else if (mLayoutParams.y > maxMarginTop) {
+                    mLayoutParams.y = maxMarginTop;
                 }
 
                 mWindowManager.updateViewLayout(ball, mLayoutParams);
                 break;
             case MotionEvent.ACTION_MOVE:
                 mLayoutParams.x = (int)(touchX-downRelativeX);
-                mLayoutParams.y = (int)(touchY-downRelativeY);
+                mLayoutParams.y = (int)(touchY-downRelativeY - statusBarHeight);
 
                 if (mLayoutParams.y < 0) {
                     mLayoutParams.y = 0;
+                } else if (mLayoutParams.y > maxMarginTop) {
+                    mLayoutParams.y = maxMarginTop;
+                }
+
+                if (mLayoutParams.x > maxMarginLeft) {
+                    mLayoutParams.x = maxMarginLeft;
+                } else if (mLayoutParams.x < 0) {
+                    mLayoutParams.x = 0;
                 }
 
 //                mLayoutParams.x = 0;
@@ -176,7 +215,7 @@ public class FloatViewSample2 implements View.OnTouchListener {
                 break;
         }
 
-        Log.wtf("FloatView2", "getTopStatusBarHeight: " + getTopStatusBarHeight());
+        Log.wtf("FloatView2", "getTopStatusBarHeight: " + statusBarHeight);
 
         return true;
     }
