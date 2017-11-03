@@ -3,6 +3,7 @@ package com.lonelyyhu.exercise.floatingball;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -18,6 +19,10 @@ public class FloatBall1Activity extends AppCompatActivity {
     }
 
     private void showFloatView(){
+
+        LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(this.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.layout_float_ball, null);
+
         FloatViewSample1 floatView = new FloatViewSample1.Builder(this, (ViewGroup) findViewById(R.id.root_view_float_activity_1))
                 .setBottomMargin(0)
                 .setRightMargin(0)
@@ -25,6 +30,7 @@ public class FloatBall1Activity extends AppCompatActivity {
                 .setWidth(225)
                 .setDuration(500)
                 .setRes(R.drawable.android)
+                .setBall(view)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
