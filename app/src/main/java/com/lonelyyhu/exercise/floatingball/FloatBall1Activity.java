@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 public class FloatBall1Activity extends AppCompatActivity {
 
+    FloatingView floatView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,14 +25,15 @@ public class FloatBall1Activity extends AppCompatActivity {
         LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(this.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.layout_float_ball, null);
 
-        FloatViewSample1 floatView = new FloatViewSample1.Builder(this, (ViewGroup) findViewById(R.id.root_view_float_activity_1))
+        floatView = new FloatingView.Builder(this, (ViewGroup) findViewById(R.id.root_view_float_activity_1))
                 .setBottomMargin(0)
                 .setRightMargin(0)
                 .setHeight(225)
                 .setWidth(225)
                 .setDuration(500)
                 .setRes(R.drawable.android)
-                .setBall(view)
+                .setView(view)
+//                .setShowOnStart(true)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -38,6 +41,8 @@ public class FloatBall1Activity extends AppCompatActivity {
                     }
                 })
                 .build();
+
+
     }
 
     @Override
@@ -45,6 +50,16 @@ public class FloatBall1Activity extends AppCompatActivity {
         super.onResume();
 
         Log.wtf("FloatBall1Activity", "onResume =>"+ this.getWindow().getDecorView().getBottom());
+
+    }
+
+    public void onClickButton(View view) {
+
+        if (floatView.getFloatingView().isShown()) {
+            floatView.hide();
+        } else {
+            floatView.show();
+        }
 
     }
 }

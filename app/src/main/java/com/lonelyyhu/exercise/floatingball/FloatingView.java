@@ -34,6 +34,7 @@ public class FloatingView implements View.OnTouchListener {
     private int xDelta;
     private int yDelta;
     private DisplayMetrics dm;
+    private boolean isAddedToView;
 
     public FloatingView(Params params) {
         this.params = params;
@@ -46,14 +47,27 @@ public class FloatingView implements View.OnTouchListener {
     }
 
     public void show() {
-        if (fv != null && !fv.isShown()) {
+
+        if (fv == null) {
+            return;
+        }
+
+        if (isAddedToView) {
+            fv.setVisibility(View.VISIBLE);
+        } else {
             params.rootView.addView(fv);
+            isAddedToView = true;
         }
     }
 
     public void hide() {
-        if (fv != null) {
-            params.rootView.removeView(fv);
+        if (fv == null) {
+            return;
+        }
+
+        if (isAddedToView) {
+            fv.setVisibility(View.GONE);
+            Log.wtf("FloatingView", "hide: set to gone");
         }
     }
 
